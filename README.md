@@ -1,4 +1,4 @@
 # CHT is pain...
 
-first run makeMesh
+first run makeMesh \\
 then run chtMultiRegionFoam
