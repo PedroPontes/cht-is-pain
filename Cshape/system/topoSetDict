@@ -1,0 +1,311 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+xfluid	50E-6;
+xmax	150E-6;
+yheater 100E-6;
+yfluid	200E-6;
+ywall	700E-6;
+ymax	800E-6;
+zmax	1000E-6;
+
+actions
+(
+	//Fluid
+    {
+        name    fluidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (0 $yfluid 0)($xfluid $ywall $zmax);
+        }
+    }
+    {
+        name    fluid;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set fluidCellSet;
+        }
+    }
+	
+	//Heater
+    {
+        name   	heaterCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (0 0 0)($xmax $yheater $zmax);
+        }    
+    }
+    {
+        name    heater;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set heaterCellSet;
+        }
+    }
+
+	//Metal
+    {
+        name    metalCellSet;
+        type    cellSet;
+        action  new;
+        source  cellToCell;
+        sourceInfo
+        {
+            set fluidCellSet;
+        }
+    }
+
+    {
+        name    metalCellSet;
+        type    cellSet;
+        action  add;
+        source  cellToCell;
+        sourceInfo
+        {
+            set heaterCellSet;
+        }
+    }
+
+    {
+        name    metalCellSet;
+        type    cellSet;
+        action  invert;
+    }
+
+    {
+        name    metal;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set metalCellSet;
+        }
+    }
+
+
+
+);
+/*
+
+
+    {
+        name    solidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (0 0 0)($xfluid $yfluid $zmax);
+        }
+    }
+
+    {
+        name    solidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box ($xfluid 0 0)($xmax $ymax $zmax);
+        }
+    }
+
+    {
+        name    solidCellSet;
+        type    cellSet;
+        action  add;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (0 $ywall 0)($xfluid $ymax $zmax);
+        }
+    }
+
+
+ //Heater
+    {
+        name    heaterCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (-0.01001    0 -100 )(0.01001 0.00999 100);
+        }
+    }
+    {
+        name    heaterCellSet;
+        type    cellSet;
+        action  add;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (-0.01001 -100 -0.01001)(0.01001 0.00999 0.01001);
+        }
+    }
+    {
+        name    heater;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set heaterCellSet;
+        }
+    }
+
+    // leftSolid
+    {
+        name    leftSolidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (-100 0 -100 )(-0.01001 0.00999 100);
+        }
+    }
+    {
+        name    leftSolid;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set leftSolidCellSet;
+        }
+    }
+
+    // rightSolid
+    {
+        name    rightSolidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (0.01001 0 -100 )(100 0.00999 100);
+        }
+    }
+    {
+        name    rightSolid;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set rightSolidCellSet;
+        }
+    }
+
+    // topAir
+    {
+        name    topAirCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (-100 0.00999 -100 )(100 100 100);
+        }
+    }
+    {
+        name    topAir;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set topAirCellSet;
+        }
+    }
+
+
+    // bottomWater is all the other cells
+    {
+        name    bottomWaterCellSet;
+        type    cellSet;
+        action  new;
+        source  cellToCell;
+        sourceInfo
+        {
+            set heaterCellSet;
+        }
+    }
+    {
+        name    bottomWaterCellSet;
+        type    cellSet;
+        action  add;
+        source  cellToCell;
+        sourceInfo
+        {
+            set leftSolidCellSet;
+        }
+    }
+    {
+        name    bottomWaterCellSet;
+        type    cellSet;
+        action  add;
+        source  cellToCell;
+        sourceInfo
+        {
+            set rightSolidCellSet;
+        }
+    }
+    {
+        name    bottomWaterCellSet;
+        type    cellSet;
+        action  add;
+        source  cellToCell;
+        sourceInfo
+        {
+            set topAirCellSet;
+        }
+    }
+    {
+        name    bottomWaterCellSet;
+        type    cellSet;
+        action  invert;
+    }
+    {
+        name    bottomWater;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set bottomWaterCellSet;
+        }
+    }
+); *\
+
+
+// ************************************************************************* //
